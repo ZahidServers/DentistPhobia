@@ -1,357 +1,525 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-  
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
 <title>Dentaon — Premium Dentist Landing (Delta-style Hero)</title>
-  
+
 <!-- Bootstrap 5 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  
 <!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <!-- Swiper -->
 <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
-
 <!-- AOS -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+
+<!-- Three.js + GLTFLoader (kept, even if not used directly) -->
 <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
-
 <style>
-  /* ---------- Theme variables (light & dark) ---------- */
+  /* ---------- Theme variables ---------- */
   :root{
-    --bg: #ffffff;
-    --surface: #ffffff;
-    --text: #132029;
-    --muted: #51606a;
-    --primary: #0aa0c6;
-    --accent: #18c29c;
-    --glass: rgba(255,255,255,0.06);
-    --shadow: rgba(15,43,70,0.08);
-    --hero-overlay: rgba(3,10,16,0.35);
+    --bg:#ffffff;
+    --surface:#ffffff;
+    --text:#132029;
+    --muted:#51606a;
+    --primary:#0aa0c6;
+    --accent:#18c29c;
+    --glass:rgba(255,255,255,0.06);
+    --shadow:0 12px 40px rgba(15,43,70,0.10);
+    --hero-overlay:rgba(3,10,16,0.32);
+    --ring: 0 0 0 3px color-mix(in srgb, var(--primary) 28%, transparent);
   }
   [data-theme="dark"]{
-    --bg: #07121a;
-    --surface: #071827;
-    --text: #dbeff3;
-    --muted: #9fb4bf;
-    --primary: #2bd1dd;
-    --accent: #44e0b8;
-    --glass: rgba(255,255,255,0.02);
-    --shadow: rgba(0,0,0,0.45);
-    --hero-overlay: rgba(0,0,0,0.45);
+    --bg:#07121a;
+    --surface:#081b2b;
+    --text:#dbeff3;
+    --muted:#9fb4bf;
+    --primary:#2bd1dd;
+    --accent:#44e0b8;
+    --glass:rgba(255,255,255,0.05);
+    --shadow:0 12px 40px rgba(0,0,0,0.35);
+    --hero-overlay:rgba(0,0,0,0.4);
   }
 
-  html,body{height:100%; background:var(--bg); color:var(--text); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-  a{color:var(--primary)}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+  a{color:var(--primary);text-decoration:none}
   .muted{color:var(--muted)}
   .container-lg{max-width:1140px}
-
+  .my-box{box-shadow: 0 0 0 820px var(--bg);}
   /* ---------- NAV ---------- */
-  .nav-surface{background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 88%, transparent), transparent); backdrop-filter: blur(6px);}
-  .navbar-brand{font-weight:700; letter-spacing:.2px; font-size:1.05rem}
-  .nav-link{color:var(--text) !important; opacity:.9}
-  [data-theme="dark"] .nav-link{color:var(--text) !important}
-  .nav-cta{border-radius:12px; padding:8px 14px; font-weight:600}
-  .nav-ghost{background:transparent; border:1px solid rgba(0,0,0,0.06);}
+  .nav-surface{
+    background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 88%,transparent),transparent);
+    backdrop-filter:blur(8px);
+  }
+  .navbar-brand{font-weight:800;letter-spacing:.2px}
+  .nav-link{color:var(--text)!important;opacity:.9}
+  .nav-link:hover{opacity:1}
+  .nav-cta{border-radius:12px;padding:8px 14px;font-weight:700}
+  .nav-ghost{background:transparent;border:1px solid rgba(0,0,0,.08)}
+  [data-theme="dark"] .nav-ghost{border-color:rgba(255,255,255,.12)}
 
-  /* ---------- HERO (Delta-style full viewport) ---------- */
-  .hero-viewport{position:relative; width:100%; min-height:100vh; overflow:hidden; display:block;}
+  /* ---------- HERO (Delta-style) ---------- */
+  .hero-viewport{position:relative;width:100%;min-height:100vh;overflow:hidden}
   .hero-swiper .swiper-slide{
-    width:100%; height:100vh; display:block;
-    background-position:center; background-size:cover; background-repeat:no-repeat;
-    position:relative;
+    width:100%;height:100vh;background-position:center;background-size:cover;background-repeat:no-repeat;position:relative
   }
-  /* first slide will be video; make content layer centered */
-  .hero-layer{
-    position:absolute; inset:0; z-index:6; display:flex; align-items:center; justify-content:center; text-align:left; padding:2rem;
+  .hero-overlay{position:absolute;inset:0;background:var(--hero-overlay);z-index:4;pointer-events:none}
+  #three-root{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.9}
+  #three-tooth{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.9}
+
+  .hero-layer{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;padding:2rem}
+  .hero-inner{max-width:1200px;width:100%;display:flex;gap:2rem;align-items:center}
+  .hero-copy{flex:1;color:#fff;max-width:760px}
+  .hero-copy h1{font-size:clamp(32px,5vw,56px);line-height:1.02;margin-bottom:.55rem;text-shadow:0 10px 36px rgba(0, 0, 0, 0.699);-webkit-text-stroke: 1px #000000;}
+  .hero-copy p{font-size:1.08rem;color:rgba(255,255,255,.9);text-shadow:0 6px 18px rgba(0,0,0,.699);-webkit-text-stroke: 0.5px #000000; font-size: x-large; font-weight: 600;}
+  @media (max-width: 425px) {
+  .hero-copy p {
+    font-size: large;
+    font-weight: 600;
   }
-  .hero-inner{max-width:1200px; width:100%; display:flex; gap:2rem; align-items:center;}
-  .hero-copy{flex:1; color:#fff; max-width:720px}
-  .hero-copy h1{font-size: clamp(30px, 5vw, 54px); line-height:1.02; margin-bottom:.6rem; text-shadow: 0 8px 30px rgba(0,0,0,0.45)}
-  .hero-copy p{font-size:1.05rem; color:rgba(255,255,255,0.88); margin-bottom:1.1rem; text-shadow: 0 6px 18px rgba(0,0,0,0.25)}
-  .hero-actions{display:flex; gap:12px; flex-wrap:wrap}
+}
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(60% 40% at 70% 20%,
+ color-mix(in srgb, var(--brand) 20%, transparent) 0%, transparent 60%), radial-gradient(30% 30% at 20% 80%,
+ color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 60%);
+}
+@media (max-width: 375px) {
+  .hero-copy p {
+    font-size: medium;
+    font-weight: 600;
+  }
+}
 
-  .hero-side{min-width:300px; max-width:360px; backdrop-filter: blur(8px); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); padding:20px; border-radius:14px; box-shadow:0 10px 30px var(--shadow); color:var(--text)}
-  [data-theme="dark"] .hero-side{background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); color:var(--text)}
+@media (max-width: 325px) {
+  .hero-copy p {
+    font-size: small;
+    font-weight: 600;
+  }
+}
 
-  /* overlay on top of slides for contrast */
-  .hero-overlay{position:absolute; inset:0; background:var(--hero-overlay); z-index:4; pointer-events:none}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+  .hero-side{min-width:300px;max-width:360px;background:var(--glass);backdrop-filter:blur(10px);padding:20px;border-radius:16px;box-shadow:var(--shadow);color:var(--text)}
+  .slide-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 
-  /* video full cover inside slide (for first) */
-  .slide-video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1}
-  .slide-video[aria-hidden="true"]{display:block}
+  /* ---------- Sections ---------- */
+  section{padding:80px 0}
+  .section-title{font-weight:900;letter-spacing:.2px;margin-bottom:8px}
+  .decor-underline{display:inline-block;height:8px;width:64px;border-radius:8px;background:linear-gradient(90deg,var(--primary),var(--accent));vertical-align:middle;margin-left:12px}
 
-  /* slide content panel sits above overlay (z-index 6) */
-  .hero-content-panel{position:relative; z-index:6}
-
-  /* ---------- sections ---------- */
-  section{padding:72px 0}
-  .section-title{font-weight:800; margin-bottom:6px}
-  .decor-underline{display:inline-block;height:8px;width:60px;border-radius:8px;background:linear-gradient(90deg,var(--primary),var(--accent)); vertical-align:middle;margin-left:12px}
-
-  /* services/cards */
-  .feature{background:var(--surface); border-radius:12px; padding:18px; box-shadow:0 8px 24px var(--shadow)}
+  .feature{background:var(--surface);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
   .feature h5{margin-bottom:6px}
-  .feature p{color:var(--muted); margin-bottom:0}
+  .feature p{color:var(--muted);margin-bottom:0}
 
-  /* testimonials */
-  .testi{background:var(--surface); border-radius:12px; padding:16px; box-shadow:0 10px 28px var(--shadow); min-height:150px}
+  .card-soft{background:var(--surface);border:none;border-radius:16px;box-shadow:var(--shadow)}
+  .badge-soft{background:color-mix(in srgb,var(--primary) 12%, transparent);color:var(--primary)}
 
-  /* contact */
-  .contact-card{background:var(--surface); padding:18px; border-radius:12px; box-shadow:0 10px 28px var(--shadow)}
+  /* Testimonials */
+  .testi{background:var(--surface);border-radius:14px;padding:18px;box-shadow:var(--shadow);min-height:150px}
 
-  /* footer */
-  footer{padding:32px 0; color:var(--muted); background:transparent; border-top:1px solid rgba(0,0,0,0.04)}
+  /* Contact */
+  .contact-card{background:var(--surface);padding:20px;border-radius:16px;box-shadow:var(--shadow)}
+  .form-control:focus, .form-select:focus{box-shadow:var(--ring);border-color:var(--primary)}
 
-  /* responsive tweaks */
-  @media (max-width:991px){
-    .hero-inner{flex-direction:column; align-items:flex-start}
-    .hero-side{width:100%; max-width:100%}
-    .hero-copy{text-align:left}
+  /* Footer & socials */
+  footer{padding:36px 0;color:var(--muted)}
+  .footer-social a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:color-mix(in srgb, var(--primary) 12%, transparent)}
+  .footer-social a:hover{transform:translateY(-2px)}
+
+  /* Floating actions */
+  .fab{
+    position:fixed;right:16px;z-index:50;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.25)
   }
-  @media (max-width:575px){
-    .navbar .collapse{background:var(--bg); padding:10px; border-radius:8px}
-    .hero-copy h1{font-size: clamp(22px, 7vw, 34px)}
-    .hero-layer{padding:1rem}
-  }
+  .fab-whatsapp{bottom:86px;background:#25D366;color:#fff}
+  .fab-call{bottom:20px;background:var(--primary);color:#042428}
 
-  /* focus accessibility */
-  :focus-visible{outline:3px solid color-mix(in srgb, var(--primary) 25%, transparent); outline-offset:4px; border-radius:6px}
+  /* Utilities */
+  .divider{height:1px;background:linear-gradient(90deg,transparent, color-mix(in srgb,var(--muted) 20%, transparent), transparent)}
+  .small-muted{font-size:.92rem;color:var(--muted)}
+  .icon-48{font-size:40px;line-height:1}
+  .icon-32{font-size:28px;line-height:1}
+
+  /* Responsive */
+  @media (max-width:991.98px){
+    .hero-inner{flex-direction:column}
+    .hero-side{width:100%}
+  }
+  #bg-canvas {position: absolute;inset: 0;z-index: 4;}
+
+  .before-after-wrapper {
+  position: relative;
+  overflow: hidden;
+  max-width: 600px;
+  height: auto;
+  min-height: 464px;
+}
+
+.before-img,
+.after-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.after-img {
+  clip-path: inset(0 50% 0 0); /* Start with half revealed */
+  transition: clip-path 0.2s ease;
+}
+
+.slider-handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 4px;
+  height: 100%;
+  background: #0aa0c6;
+  cursor: ew-resize;
+  z-index: 10;
+  transition: left 0.2s ease;
+}
+
+.label-before,
+.label-after {
+  position: absolute;
+  bottom: 0px;
+  width: 50%;
+  text-align: center;
+  font-weight: bold;
+  color: #333;
+  font-size: 1rem;
+}
+
+.label-before {
+  left: 0;
+}
+
+.label-after {
+  right: 0;
+}
+.before-after-wrapper:hover .label-before,
+.before-after-wrapper:hover .label-after {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
 </style>
 </head>
+
 <body data-theme="light">
-
 <!-- NAV -->
-<nav class="navbar navbar-expand-lg sticky-top py-3 nav-surface" role="navigation" aria-label="Main navigation">
-  <div class="container container-lg d-flex align-items-center">
-    <a class="navbar-brand me-3" href="#" id="brand">Dentaon</a>
-
-    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg fixed-top nav-surface">
+  <div class="container container-lg">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="#hero">
+      <i class="bi bi-brightness-alt-high-fill text-primary"></i><span>Dentaon</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="navCollapse">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
         <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#comfort">Comfort</a></li>
+        <li class="nav-item"><a class="nav-link" href="#values">Values</a></li>
         <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
       </ul>
-
       <div class="d-flex align-items-center gap-2">
-        <button id="themeToggle" class="btn btn-outline-secondary nav-ghost" aria-label="Toggle theme"><i id="themeIcon" class="bi bi-moon-fill" aria-hidden="true"></i></button>
+        <button id="themeToggle" class="btn btn-outline-secondary nav-ghost" aria-label="Toggle theme">
+          <i id="themeIcon" class="bi bi-moon-fill" aria-hidden="true"></i>
+        </button>
         <a class="btn nav-cta" href="#contact" style="background:linear-gradient(90deg,var(--primary),var(--accent)); color:#042428;">Book Appointment</a>
       </div>
     </div>
   </div>
 </nav>
 
-<!-- HERO (Delta-style full width) -->
-<header class="hero-viewport" role="banner" id="hero">
-  <!-- Three.js decorative canvas behind slides -->
-  <div id="three-root" style="position:absolute; inset:0; z-index:100; pointer-events:none; opacity:0.85"></div>
-
-  <!-- single overlay to increase contrast -->
+<!-- HERO -->
+<header class="hero-viewport" id="hero" role="banner">
+  <!-- Three.js decorative background (lightweight abstract) -->
+  <canvas id="bg-canvas"></canvas>
+  <div id="three-root"></div>
+  <div id="three-tooth"></div>
+  <!-- overlay for contrast -->
   <div class="hero-overlay" aria-hidden="true"></div>
 
-  <!-- Swiper slider covers full viewport; slides use background images applied inline -->
+  <!-- Swiper hero (video first) -->
   <div class="swiper hero-swiper" aria-label="Hero carousel">
     <div class="swiper-wrapper">
-
-      <!-- Slide 1: Video background (first) -->
-      <div class="swiper-slide" data-swiper-slide-index="0" style="background-color:#000;">
-        <!-- video placed absolutely to cover slide -->
+      <!-- Slide 1 — Video -->
+      <div class="swiper-slide" style="background:#000">
         <video class="slide-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
           <source src="https://cdn.prod.website-files.com/5f32f27891c57c18c3b42552/64496bb6524aaec24dfe1cb1_Sunshine%20Family%20Dentistry%20HERO%20Reupload-transcode.mp4" type="video/mp4">
         </video>
         <div class="hero-layer">
           <div class="hero-inner">
-            <div class="hero-copy" data-aos="fade-up">
+            <div class="hero-copy" data-aos="fade-up" data-aos-once="false">
               <div class="small text-uppercase text-white-50 mb-2" style="letter-spacing:.14em">Trusted Dental Care</div>
-              <h1 class="text-white">Modern care, calming experience</h1>
-              <p class="lead text-white-75">Gentle dentistry focused on comfort and long-term results. Book online or call our clinic.</p>
+              <h1 id="heroTitle" class="text-white">Modern care, calming experience</h1>
+              <p id="heroSubtitle" class="lead text-white-75">Gentle dentistry focused on comfort and long-term results. Book online or call our clinic.</p>
               <div class="hero-actions">
-                <a href="#contact" class="btn" style="background:linear-gradient(90deg,var(--primary),var(--accent)); color:#042428; border-radius:12px; padding:10px 18px; font-weight:700" data-anim="cta">Book Appointment</a>
-                <a href="#services" class="btn btn-outline-light" style="border-radius:12px; padding:10px 16px;">Our Services</a>
+                <a href="#contact" class="btn" data-anim="cta" style="background:linear-gradient(90deg,var(--primary),var(--accent)); color:#042428; border-radius:12px; padding:10px 18px; font-weight:800">Book Appointment</a>
+                <a href="#services" class="btn btn-outline-light" style="border-radius:12px; padding:10px 16px">Explore Services</a>
               </div>
             </div>
-
-            <div class="hero-side ms-4 d-none d-lg-block" data-aos="fade-left">
-              <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px">
-                <img src="https://zahidservers.github.io/DentistPhobia/assets/img/full-width.jpg" alt="clinic" style="width:64px;height:64px;object-fit:cover;border-radius:10px">
-                <div>
-                  <div style="font-weight:700">Dentaon Clinic</div>
-                  <div class="muted small">Mon–Sat • Emergency care</div>
-                </div>
+            <aside class="hero-side card-soft" data-aos="fade-left" data-aos-delay="100" data-aos-once="false">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="fa-solid fa-tooth icon-32" style="color:var(--primary)"></i>
+                <strong>Same-day Appointments</strong>
               </div>
-              <div class="muted small">Next available</div>
-              <div style="font-weight:700; margin-bottom:10px">Thu • 10:30 AM</div>
-              <a href="tel:+911234567890" style="display:inline-block; font-weight:700; color:var(--primary); margin-bottom:12px"><i class="bi bi-telephone-fill me-2"></i>+91 12345 67890</a>
-              <div><a href="#contact" class="btn" style="background:var(--primary); color:#042428; border-radius:10px; display:block; padding:10px 12px; margin-top:8px;">Request Appointment</a></div>
-            </div>
+              <div class="small-muted mb-2">Call us to check availability. Emergency care welcome.</div>
+              <div class="d-flex flex-wrap gap-2">
+                <span class="badge rounded-pill badge-soft"><i class="bi bi-check2"></i> Painless care</span>
+                <span class="badge rounded-pill badge-soft"><i class="bi bi-check2"></i> Family friendly</span>
+                <span class="badge rounded-pill badge-soft"><i class="bi bi-check2"></i> Insurance help</span>
+              </div>
+            </aside>
           </div>
         </div>
       </div>
 
-      <!-- Slide 2: large background image (full width) -->
-      <div class="swiper-slide" style="background-image: url('https://zahidservers.github.io/DentistPhobia/assets/img/full-width.jpg');">
+      <!-- Slide 2 — Image -->
+      <div class="swiper-slide" style="background-image:url('https://zahidservers.github.io/DentistPhobia/assets/img/full-width.jpg')">
         <div class="hero-layer">
           <div class="hero-inner">
-            <div class="hero-copy" data-aos="fade-up">
-              <div class="small text-uppercase text-white-50 mb-2">Advanced Clinic</div>
-              <h1 class="text-white">Comfortable treatments in a modern space</h1>
-              <p class="lead text-white-75">State-of-the-art equipment and experienced dentists for predictable results.</p>
+            <div class="hero-copy" data-aos="fade-up" data-aos-once="false">
+              <h1 class="text-white">Gentle & Pain-Free Dentistry</h1>
+              <p class="lead text-white-75">Our patient-centered approach prioritizes your comfort every step of the way.</p>
               <div class="hero-actions">
-                <a href="#services" class="btn btn-light" style="border-radius:12px; padding:10px 16px;">Explore Services</a>
-                <a href="#contact" class="btn btn-outline-light" style="border-radius:12px; padding:10px 16px;">Contact</a>
+                <a href="#comfort" class="btn btn-light">Our Comforts</a>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Slide 3 -->
-      <div class="swiper-slide" style="background-image: url('https://zahidservers.github.io/DentistPhobia/assets/img/seat.jpg');">
+      <!-- Slide 3 — Image -->
+      <div class="swiper-slide" style="background-image:url('https://zahidservers.github.io/DentistPhobia/assets/img/seat.jpg')">
         <div class="hero-layer">
           <div class="hero-inner">
-            <div class="hero-copy" data-aos="fade-up">
-              <div class="small text-uppercase text-white-50 mb-2">Gentle Care</div>
-              <h1 class="text-white">We make every visit calm</h1>
-              <p class="lead text-white-75">Little touches that reduce anxiety and improve patient experience.</p>
-              <div class="hero-actions">
-                <a href="#contact" class="btn" style="background:linear-gradient(90deg,var(--primary),var(--accent)); color:#042428; border-radius:12px; padding:10px 18px; font-weight:700">Book Appointment</a>
-                <a href="#about" class="btn btn-outline-light" style="border-radius:12px; padding:10px 16px;">Learn More</a>
-              </div>
+            <div class="hero-copy" data-aos="fade-up" data-aos-once="false">
+              <h1 class="text-white">Smiles for the Whole Family</h1>
+              <p class="lead text-white-75">From regular cleanings to advanced restorative care.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Slide 4 -->
-      <div class="swiper-slide" style="background-image: url('https://zahidservers.github.io/DentistPhobia/assets/img/seatangle.jpg');">
+      <!-- Slide 4 — Image -->
+      <div class="swiper-slide" style="background-image:url('https://zahidservers.github.io/DentistPhobia/assets/img/seatangle.jpg')">
         <div class="hero-layer">
           <div class="hero-inner">
-            <div class="hero-copy" data-aos="fade-up">
-              <div class="small text-uppercase text-white-50 mb-2">Expert Dentists</div>
-              <h1 class="text-white">Personalized treatment plans</h1>
-              <p class="lead text-white-75">We listen and design a plan that fits your needs and lifestyle.</p>
-              <div class="hero-actions">
-                <a href="#services" class="btn btn-light" style="border-radius:12px; padding:10px 16px;">View Services</a>
-                <a href="#contact" class="btn btn-outline-light" style="border-radius:12px; padding:10px 16px;">Contact</a>
-              </div>
+            <div class="hero-copy" data-aos="fade-up" data-aos-once="false">
+              <h1 class="text-white">Book Online, Visit Stress-Free</h1>
+              <p class="lead text-white-75">Simple scheduling and transparent treatment plans.</p>
             </div>
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- pagination & nav -->
-    <div class="swiper-pagination" style="z-index:8"></div>
-    <div class="swiper-button-prev" style="color:#fff; z-index:8"></div>
-    <div class="swiper-button-next" style="color:#fff; z-index:8"></div>
+    <!-- Swiper UI -->
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
   </div>
 </header>
 
-<main class="container container-lg">
-  <!-- ABOUT -->
-  <section id="about" data-aos="fade-up">
-    <div class="row align-items-center g-4">
-      <div class="col-md-6">
-        <h2 class="section-title">Comfort-first dentistry <span class="decor-underline" aria-hidden="true"></span></h2>
-        <p class="muted">We combine advanced equipment, proven techniques, and a friendly team to make dental care calm and effective.</p>
+<main style="background-color: var(--bg);" class="container container-lg my-box">
 
-        <div class="row g-3 mt-3">
-          <div class="col-sm-6">
-            <div class="feature">
-              <h5>Certified Dentists</h5>
-              <p>Years of experience and continuous training.</p>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="feature">
-              <h5>Sterile Environment</h5>
-              <p>Strict hygiene standards and modern sterilization.</p>
-            </div>
-          </div>
+  <!-- HIGHLIGHTS -->
+  <section id="highlights" class="pt-5" data-aos="fade-up" data-aos-once="false">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="feature h-100">
+          <div class="d-flex align-items-center gap-2 mb-1"><i class="fa-regular fa-face-smile icon-32" style="color:var(--accent)"></i><h6 class="m-0 fw-bold">Personalized Care</h6></div>
+          <p>Each plan is tailored to your goals with complete transparency.</p>
         </div>
       </div>
-
-      <div class="col-md-6" data-aos="fade-left">
-        <div class="row g-3">
-          <div class="col-6"><img src="https://zahidservers.github.io/DentistPhobia/assets/img/seat.jpg" alt="" class="img-fluid rounded-3 shadow-sm"></div>
-          <div class="col-6"><img src="https://zahidservers.github.io/DentistPhobia/assets/img/seatangle.jpg" alt="" class="img-fluid rounded-3 shadow-sm"></div>
+      <div class="col-md-3">
+        <div class="feature h-100">
+          <div class="d-flex align-items-center gap-2 mb-1"><i class="fa-solid fa-wand-magic-sparkles icon-32" style="color:var(--primary)"></i><h6 class="m-0 fw-bold">Gentle & Painless</h6></div>
+          <p>Comfort-first techniques and a calm, friendly team.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="feature h-100">
+          <div class="d-flex align-items-center gap-2 mb-1"><i class="fa-solid fa-timeline icon-32" style="color:var(--primary)"></i><h6 class="m-0 fw-bold">Flexible Scheduling</h6></div>
+          <p>Same-day appointments available. Emergency cases welcome.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="feature h-100">
+          <div class="d-flex align-items-center gap-2 mb-1"><i class="fa-solid fa-shield-heart icon-32" style="color:var(--accent)"></i><h6 class="m-0 fw-bold">Patient-Centered</h6></div>
+          <p>Relaxing environment with massaging, heated chairs and entertainment.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SERVICES -->
-  <section id="services" data-aos="fade-up">
-    <div class="text-center mb-4">
-      <h2 class="section-title">Our Services <span class="decor-underline" aria-hidden="true"></span></h2>
-      <p class="muted">From preventive cleanings to advanced restorative work and cosmetic treatments.</p>
-    </div>
+  <!-- SERVICES GRID -->
+  <section id="services" data-aos="fade-up" data-aos-once="false">
+    <h2 class="section-title">Comprehensive Dental Services <span class="decor-underline"></span></h2>
+    <p class="muted">From routine check-ups to complex procedures, we offer a wide range of dental services under one roof.</p>
 
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 mt-2">
+      <!-- 12 service cards -->
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-once="false"><i class="fa-solid fa-children icon-48 mb-2" style="color:var(--primary)"></i><h5>Pediatric Dentistry</h5><p class="muted">Specialized care for children in a friendly, gentle setting.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="50" data-aos-once="false"><i class="fa-solid fa-screwdriver-wrench icon-48 mb-2" style="color:var(--accent)"></i><h5>Dental Implants</h5><p class="muted">Reliable, natural-looking replacements for missing teeth.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="100" data-aos-once="false"><i class="fa-solid fa-tooth icon-48 mb-2" style="color:var(--primary)"></i><h5>Orthodontic Treatment</h5><p class="muted">Comfortable options to correct misaligned teeth.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="150" data-aos-once="false"><i class="fa-solid fa-tooth-crack icon-48 mb-2" style="color:var(--accent)"></i><h5>Root Canal Treatment</h5><p class="muted">Save severely infected teeth with precision and comfort.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="200" data-aos-once="false"><i class="fa-regular fa-square-minus icon-48 mb-2" style="color:var(--primary)"></i><h5>Tooth Extraction</h5><p class="muted">Safe extractions with detailed after-care guidance.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="250" data-aos-once="false"><i class="fa-regular fa-square-minus icon-48 mb-2" style="color:var(--accent)"></i><h5>Wisdom Tooth Extraction</h5><p class="muted">Comfortable removal of wisdom teeth when necessary.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="300" data-aos-once="false"><i class="fa-regular fa-square-plus icon-48 mb-2" style="color:var(--primary)"></i><h5>Dental Fillings</h5><p class="muted">Durable, aesthetic restorations to repair cavities.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="350" data-aos-once="false"><i class="fa-solid fa-hands-holding-heart icon-48 mb-2" style="color:var(--accent)"></i><h5>Periodontal Treatments</h5><p class="muted">Healthy gums for a strong foundation and fresh breath.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="400" data-aos-once="false"><i class="fa-regular fa-gem icon-48 mb-2" style="color:var(--primary)"></i><h5>Bridge & Crown</h5><p class="muted">Restore strength and aesthetics with precision crowns/bridges.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="450" data-aos-once="false"><i class="fa-regular fa-star icon-48 mb-2" style="color:var(--accent)"></i><h5>Teeth Whitening & Bleaching</h5><p class="muted">Brighten your smile safely and effectively.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="500" data-aos-once="false"><i class="fa-regular fa-grin-beam icon-48 mb-2" style="color:var(--primary)"></i><h5>Veneers</h5><p class="muted">Transform the look of your teeth with custom veneers.</p></div></div>
+      <div class="col"><div class="card-soft p-3 h-100" data-aos="zoom-in" data-aos-delay="550" data-aos-once="false"><i class="fa-solid fa-tooth icon-48 mb-2" style="color:var(--accent)"></i><h5>Family Smile Solutions</h5><p class="muted">A full menu of preventative & restorative care for all ages.</p></div></div>
+    </div>
+  </section>
+
+  <!-- COMFORT -->
+  <section id="comfort" data-aos="fade-up" data-aos-once="false">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-6">
+        <h2 class="section-title">Gentle & Comfort-First <span class="decor-underline"></span></h2>
+        <p class="muted">Our focus is on providing gentle and pain-free treatments to create a relaxed and comfortable experience for all patients.</p>
+        <ul class="list-unstyled mt-3">
+          <li class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-success"></i> Massaging, heated chairs & your choice of entertainment</li>
+          <li class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-success"></i> Calming environment with refreshments and music</li>
+          <li class="d-flex gap-2 align-items-start"><i class="bi bi-check-circle-fill text-success"></i> Transparent, personalized treatment plans</li>
+        </ul>
+        <div class="mt-3"><a href="#contact" class="btn btn-outline-primary rounded-3">Ask about sedation options</a></div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card-soft overflow-hidden">
+          <img alt="featured" src="https://zahidservers.github.io/DentistPhobia/assets/img/full-width.jpg" class="w-100" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compare -->
+  <section id="Compare" data-aos="fade-up" data-aos-once="false">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-6">
+        <div class="container my-5">
+          <div class="before-after-wrapper position-relative">
+            <div class="label-before">Before</div>
+            <div class="label-after">After</div>
+            <img src="https://zahidservers.github.io/DentistPhobia/assets/img/before.jpg" class="img-fluid before-img" />
+            <img src="https://zahidservers.github.io/DentistPhobia/assets/img/after.jpg" class="img-fluid after-img" />
+            <div class="slider-handle"></div>
+          </div>
+        </div>        
+      </div>
+      <div class="col-lg-6">
+        <h2 class="section-title">Gentle & Comfort-First <span class="decor-underline"></span></h2>
+        <p class="muted">Our focus is on providing gentle and pain-free treatments to create a relaxed and comfortable experience for all patients.</p>
+        <ul class="list-unstyled mt-3">
+          <li class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-success"></i> Massaging, heated chairs & your choice of entertainment</li>
+          <li class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-success"></i> Calming environment with refreshments and music</li>
+          <li class="d-flex gap-2 align-items-start"><i class="bi bi-check-circle-fill text-success"></i> Transparent, personalized treatment plans</li>
+        </ul>
+        <div class="mt-3"><a href="#contact" class="btn btn-outline-primary rounded-3">Ask about sedation options</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CORE VALUES / QUOTE -->
+  <section id="values" data-aos="fade-up" data-aos-once="false">
     <div class="row g-4">
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="40">
-        <div class="feature h-100">
-          <h5>Preventive Care</h5>
-          <p>Cleanings, checkups and patient education.</p>
+      <div class="col-lg-6">
+        <div class="card-soft p-4 h-100">
+          <h2 class="section-title">Core Values <span class="decor-underline"></span></h2>
+          <div class="mt-2 d-grid gap-3">
+            <div class="d-flex gap-3 align-items-center"><i class="fa-solid fa-hand-holding-heart icon-32" style="color:var(--accent)"></i><div><strong class="d-block">A Personal Touch</strong><span class="small-muted">“I care for my patients like I would care for my own father and mother — with grace, a personal touch, excellent clinical care, and complete transparency.”</span></div></div>
+            <div class="d-flex gap-3 align-items-center"><i class="fa-solid fa-spa icon-32" style="color:var(--primary)"></i><div><strong class="d-block">Comfort</strong><span class="small-muted">Lounge area with refreshments, relaxing treatment rooms, and kind, attentive staff.</span></div></div>
+            <div class="d-flex gap-3 align-items-center"><i class="fa-solid fa-users-gear icon-32" style="color:var(--primary)"></i><div><strong class="d-block">Patient-Centered</strong><span class="small-muted">A warm environment where guests become family.</span></div></div>
+          </div>
         </div>
       </div>
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="feature h-100">
-          <h5>Cosmetic Dentistry</h5>
-          <p>Whitening, veneers and smile makeovers.</p>
-        </div>
-      </div>
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="160">
-        <div class="feature h-100">
-          <h5>Restorative</h5>
-          <p>Fillings, crowns, and implants.</p>
-        </div>
+      <div class="col-lg-6">
+        <blockquote class="card-soft p-4 h-100">
+          <div class="display-6 fw-bold mb-2" style="line-height:1.1">“100% recommend!”</div>
+          <p class="mb-4 small-muted">“Absolutely beautiful space. Wonderful staff. Very welcoming. The doctor is kind and explains everything clearly. You’ll feel comfortable with every step.”</p>
+          <div class="d-flex align-items-center gap-3">
+            <img src="https://i.pravatar.cc/64?img=12" class="rounded-circle" width="48" height="48" alt="">
+            <div><strong>Emily R.</strong><div class="small-muted">Happy patient</div></div>
+          </div>
+        </blockquote>
       </div>
     </div>
   </section>
 
-  <!-- TESTIMONIALS -->
-  <section id="testimonials" data-aos="fade-up">
-    <div class="text-center mb-4">
-      <h2 class="section-title">Happy Patients <span class="decor-underline" aria-hidden="true"></span></h2>
-      <p class="muted">Real feedback from people we've treated.</p>
-    </div>
-
-    <div class="swiper testimonials-swiper">
+  <!-- TESTIMONIALS (Swiper + Hammer gestures) -->
+  <section id="testimonials" data-aos="fade-up" data-aos-once="false">
+    <h2 class="section-title">Happy Patients <span class="decor-underline"></span></h2>
+    <div class="swiper testimonials-swiper mt-3">
       <div class="swiper-wrapper">
-        <div class="swiper-slide"><div class="testi"><p>"Very professional and gentle. My anxiety disappeared."</p><strong>— Aisha</strong></div></div>
-        <div class="swiper-slide"><div class="testi"><p>"Fast, painless, and friendly staff. Excellent results."</p><strong>— Rahul</strong></div></div>
-        <div class="swiper-slide"><div class="testi"><p>"Clean clinic and modern equipment. Highly recommend."</p><strong>— Fatima</strong></div></div>
+        <div class="swiper-slide"><div class="testi"><p>“Professional and caring team. My root canal was painless and quick.”</p><strong>— Aisha</strong></div></div>
+        <div class="swiper-slide"><div class="testi"><p>“From booking to follow-up, everything felt smooth. The clinic is spotless.”</p><strong>— Arjun</strong></div></div>
+        <div class="swiper-slide"><div class="testi"><p>“They explained every option with clarity. I felt fully informed.”</p><strong>— Maya</strong></div></div>
+        <div class="swiper-slide"><div class="testi"><p>“Our whole family goes here. Gentle with kids and seniors alike.”</p><strong>— Omar</strong></div></div>
       </div>
       <div class="swiper-pagination"></div>
     </div>
   </section>
 
+  <!-- FAMILY SMILE CTA -->
+  <section id="family" data-aos="fade-up" data-aos-once="false">
+    <div class="card-soft p-4 p-lg-5 text-center">
+      <div class="display-6 fw-bold mb-2">Family Smile Solutions</div>
+      <p class="muted mb-3">From regular cleanings to a variety of tooth replacement options to fit your budget, we offer a full range of preventative and restorative care.</p>
+      <a href="#contact" class="btn btn-lg nav-cta" style="background:linear-gradient(90deg,var(--primary),var(--accent)); color:#042428;">Schedule for the family</a>
+    </div>
+  </section>
+
   <!-- CONTACT -->
-  <section id="contact" data-aos="fade-up">
+  <section id="contact" data-aos="fade-up" data-aos-once="false">
     <div class="row g-4">
       <div class="col-lg-6">
-        <h2 class="section-title">Contact & Appointments <span class="decor-underline" aria-hidden="true"></span></h2>
+        <h2 class="section-title">Contact & Appointments <span class="decor-underline"></span></h2>
         <p class="muted">Request an appointment — we'll get back quickly.</p>
-
         <form id="contactForm" class="row g-3" novalidate>
-          <div class="col-md-6"><label class="form-label" for="name">Name</label><input id="name" name="name" class="form-control" required></div>
-          <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input id="phone" name="phone" class="form-control" required></div>
-          <div class="col-12"><label class="form-label" for="msg">Message</label><textarea id="msg" name="message" class="form-control" rows="4" required></textarea></div>
-          <div class="col-12"><button type="submit" class="btn" style="background:linear-gradient(90deg,var(--primary),var(--accent)); color:#042428; border-radius:10px; padding:10px 18px; font-weight:700">Send Message</button></div>
+          <div class="col-md-6">
+            <label class="form-label" for="name">Name</label>
+            <input id="name" name="name" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="phone">Phone</label>
+            <input id="phone" name="phone" class="form-control" required>
+          </div>
+          <div class="col-12">
+            <label for="service" class="form-label">Service</label>
+            <select id="service" class="form-select" required>
+              <option selected disabled value="">Choose…</option>
+              <option>Checkup</option>
+              <option>Whitening</option>
+              <option>Root Canal</option>
+              <option>Implants</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="msg">Message</label>
+            <textarea id="msg" name="message" class="form-control" rows="4" required></textarea>
+          </div>
+          <div class="col-12"><button type="submit" class="btn" style="background:linear-gradient(90deg,var(--primary),var(--accent)); color:#042428; border-radius:10px; padding:10px 18px; font-weight:700">Request Slot</button></div>
         </form>
       </div>
-
       <div class="col-lg-6">
         <div class="contact-card">
           <div class="muted small">Location</div>
@@ -359,23 +527,46 @@
           <div class="muted small">Working hours</div>
           <div style="font-weight:700">Mon–Sat • 9:00 AM – 6:30 PM</div>
           <div class="mt-3"><a href="tel:+911234567890" style="font-weight:700; color:var(--primary)"><i class="bi bi-telephone-fill me-2"></i>+91 12345 67890</a></div>
+          <div class="ratio ratio-16x9 rounded-4 overflow-hidden mt-3">
+            <iframe title="Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+              src="https://maps.google.com/maps?q=Mumbai&t=&z=12&ie=UTF8&iwloc=&output=embed"></iframe>
+          </div>
         </div>
       </div>
     </div>
   </section>
+
 </main>
 
 <!-- FOOTER -->
-<footer>
+<footer style="background-color: var(--bg);">
   <div class="container container-lg">
-    <div class="d-flex justify-content-between align-items-center flex-column flex-md-row gap-2">
-      <div>&copy; <span id="curYear"></span> Dentaon</div>
-      <div class="muted small">Designed &amp; Developed by <a href="https://www.webaon.com" target="_blank" rel="noopener">Webaon</a></div>
+    <div class="divider mb-3"></div>
+    <div class="d-flex justify-content-between align-items-center flex-column flex-md-row gap-3">
+      <div class="order-2 order-md-1 small-muted text-center text-md-start">
+        &copy; <span id="curYear"></span> Dentaon • All rights reserved<br>
+        <span>Designed &amp; Developed by <a href="https://www.webaon.com" target="_blank" rel="noopener">Webaon</a></span>
+      </div>
+      <div class="footer-social d-flex gap-2 order-1 order-md-2">
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+      </div>
     </div>
   </div>
 </footer>
 
-<!-- Libraries -->
+<!-- Floating WhatsApp & Call -->
+<a class="fab fab-whatsapp" href="https://wa.me/911234567890" target="_blank" aria-label="WhatsApp">
+  <i class="fa-brands fa-whatsapp fa-lg"></i>
+</a>
+<a class="fab fab-call" href="tel:+911234567890" aria-label="Call now">
+  <i class="fa-solid fa-phone fa-lg"></i>
+</a>
+
+<!-- JS: Bootstrap, Swiper, AOS, Anime, Hammer -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
@@ -383,8 +574,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 
 <script>
-  
-/* ---------- utilities ---------- */
+/* ---------- Year ---------- */
 document.getElementById('curYear').textContent = new Date().getFullYear();
 
 /* ---------- Theme toggle (persist) ---------- */
@@ -401,29 +591,25 @@ document.getElementById('curYear').textContent = new Date().getFullYear();
     body.setAttribute('data-theme', cur);
     localStorage.setItem('dentaon_theme', cur);
     icon.className = cur === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-    // small anime on toggle
-    anime({
-      targets: '.nav-cta',
-      scale: [1, 0.96, 1],
-      duration: 420,
-      easing: 'easeOutQuad'
-    });
+    // playful pulse with Anime.js
+    anime({ targets: '.nav-cta', scale: [1, 0.96, 1], duration: 420, easing: 'easeOutQuad' });
   });
 })();
 
-/* ---------- Init AOS ---------- */
-document.addEventListener('DOMContentLoaded', function(){ if(window.AOS) AOS.init({duration:800, once:true, offset:80}); });
+/* ---------- AOS (repeat on scroll) ---------- */
+document.addEventListener('DOMContentLoaded', function(){
+  if(window.AOS) AOS.init({ duration: 800, once: false, mirror: true, offset: 80 });
+});
 
 /* ---------- Swiper: hero + testimonials ---------- */
 const hero = new Swiper('.hero-swiper', {
   loop: true,
   autoplay: { delay: 5200, disableOnInteraction: false },
   pagination: { el: '.hero-swiper .swiper-pagination', clickable: true },
-  navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-  speed: 900,
+  navigation: { nextEl: '.hero-swiper .swiper-button-next', prevEl: '.hero-swiper .swiper-button-prev' },
+  speed: 950,
   effect: 'slide'
 });
-
 const testi = new Swiper('.testimonials-swiper', {
   slidesPerView: 1, spaceBetween: 18,
   pagination: { el: '.testimonials-swiper .swiper-pagination', clickable: true },
@@ -431,40 +617,169 @@ const testi = new Swiper('.testimonials-swiper', {
   speed: 600
 });
 
-/* Hammer.js for testimonial swipe gestures (improves mobile) */
+/* Hammer.js swipe gestures for testimonials (extra mobile control) */
 (function(){
-  try {
+  try{
     const wrap = document.querySelector('.testimonials-swiper .swiper-wrapper');
     if (wrap && window.Hammer) {
       const hamm = new Hammer(wrap);
       hamm.on('swipeleft', ()=> testi.slideNext());
       hamm.on('swiperight', ()=> testi.slidePrev());
     }
-  } catch(e){ console.warn('Hammer init', e); }
+  }catch(e){ console.warn('Hammer init', e); }
 })();
 
 /* ---------- Anime.js micro-animations ---------- */
 document.addEventListener('DOMContentLoaded', function(){
-  // underline reveal for each section title (creates the accent bar by adding .decor-underline width anim)
+  // underline grow
   document.querySelectorAll('.decor-underline').forEach((el, i) => {
     el.style.width = '0px';
-    anime({ targets: el, width: ['0px','60px'], duration: 900, delay: 180 + i*60, easing: 'easeOutQuad' });
+    anime({ targets: el, width: ['0px','64px'], duration: 900, delay: 180 + i*60, easing: 'easeOutQuad' });
+  });
+  // CTA gentle loop
+  anime({ targets: '[data-anim="cta"]', scale: [1, 1.02, 1], duration: 2000, easing: 'easeInOutSine', loop: true });
+
+  // number counters (if any .count-up elements appear later)
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const end = parseInt(el.getAttribute('data-count'),10)||0;
+    anime({ targets: {val:0}, val: end, duration: 1500, round: 1, easing:'easeOutCubic',
+      update: a => el.textContent = a.animations[0].currentValue
+    });
+  });
+  let lastScrollY = window.scrollY;
+  let scrollDirection = 'down';
+
+  window.addEventListener('scroll', () => {
+    const currentY = window.scrollY;
+    scrollDirection = currentY > lastScrollY ? 'down' : 'up';
+    lastScrollY = currentY;
   });
 
-  // CTA subtle pulse loop
-  anime({
-    targets: '[data-anim="cta"]',
-    scale: [1, 1.02, 1],
-    duration: 2000,
-    easing: 'easeInOutSine',
-    loop: true
-  });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const el = entry.target;
+      if (entry.isIntersecting) {
+
+        // Underline animation
+        if (el.classList.contains('decor-underline') && !el.dataset.animated) {
+          el.dataset.animated = 'true';
+          anime({ targets: el, width: ['0px','64px'], duration: 900, easing: 'easeOutQuad' });
+        }
+
+        // Counter animation
+        if (el.hasAttribute('data-count') && !el.dataset.animated) {
+          el.dataset.animated = 'true';
+          const end = parseInt(el.getAttribute('data-count'),10)||0;
+          anime({ targets: {val:0}, val: end, duration: 1500, round: 1, easing:'easeOutCubic',
+            update: a => el.textContent = a.animations[0].currentValue
+          });
+        }
+      }else {
+        // Fade out on scroll up
+        if (scrollDirection === 'up' && el.dataset.visible === 'true') {
+          el.dataset.visible = 'false';
+          anime({ targets: el, opacity: [1, 0], translateY: [0, -20], duration: 600, easing: 'easeOutQuad' });
+          el.dataset.animated = '';
+        }
+      }
+    });
+  }, { threshold: 0.6 }); // Trigger when 60% visible
+  document.querySelectorAll('.decor-underline, [data-count]').forEach(el => observer.observe(el));
+  anime({ targets: '[data-anim="cta"]', scale: [1, 1.02, 1], duration: 2000, easing: 'easeInOutSine', loop: true });
+
 });
 
-/* ---------- Three.js decorative background (abstract tooth-like mesh) ---------- */
+/* ---------- Three.js decorative background (abstract, fast) ---------- */
+(function(){
+  try{
+    const host = document.getElementById('three-root');
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    host.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
+    camera.position.set(0, 0.2, 2.2);
+
+    const resize = ()=>{
+      const w = host.clientWidth || window.innerWidth;
+      const h = host.clientHeight || window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / (h || 1);
+      camera.updateProjectionMatrix();
+    };
+    resize(); window.addEventListener('resize', resize);
+
+    // abstract "tooth-ish" wireframe
+    const geom = new THREE.IcosahedronGeometry(1.2, 1);
+    const vertexShader = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const fragmentShader = `
+  varying vec2 vUv;
+
+  vec3 hexToRgb(int hex) {
+    return vec3(
+      float((hex >> 16) & 0xFF) / 255.0,
+      float((hex >> 8) & 0xFF) / 255.0,
+      float(hex & 0xFF) / 255.0
+    );
+  }
+
+  void main() {
+    vec3 color1 = vec3(0.04, 0.63, 0.78); // #0aa0c6
+    vec3 color2 = vec3(0.09, 0.76, 0.61);    // #e53380
+    vec3 color3 = vec3(0.90, 0.20, 0.50);    // #ffcc00
+
+    vec3 gradient;
+    if (vUv.y < 0.5) {
+      gradient = mix(color1, color2, vUv.y * 2.0);
+    } else {
+      gradient = mix(color2, color3, (vUv.y - 0.5) * 2.0);
+    }
+
+    gl_FragColor = vec4(gradient, 0.2); // opacity
+  }
+`;
+
+const mat = new THREE.ShaderMaterial({
+  vertexShader,
+  fragmentShader,
+  transparent: true,
+  wireframe: true
+});
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.scale.set(0.4, 0.4, 0.4); // Shrinks the object uniformly
+    mesh.position.set(1.2, -0.8, 0); // Right and down
+    scene.add(mesh);
+
+    const light = new THREE.PointLight(0xffffff, 1); light.position.set(3,3,3); scene.add(light);
+    const amb = new THREE.AmbientLight(0xffffff, .35); scene.add(amb);
+
+    // subtle parallax with mouse
+    let rx=0, ry=0, tx=0, ty=0;
+    document.addEventListener('mousemove', (e)=>{
+      const nx = (e.clientX / window.innerWidth - 0.5) * 0.6;
+      const ny = (e.clientY / window.innerHeight - 0.5) * 0.6;
+      tx = nx; ty = ny;
+    });
+
+    (function animate(){
+      requestAnimationFrame(animate);
+      rx += (tx - rx) * 0.05;
+      ry += (ty - ry) * 0.05;
+      mesh.rotation.x = rx;
+      mesh.rotation.y = ry + performance.now()*0.00025;
+      renderer.render(scene, camera);
+    })();
+  }catch(e){ console.warn('Three background fallback', e); }
+})();
 // Create a "tooth-like" shape via LatheGeometry (approximate)
 
-  const host = document.getElementById('three-root');
+const host = document.getElementById('three-tooth');
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(host.clientWidth, host.clientHeight);
@@ -495,8 +810,8 @@ document.addEventListener('DOMContentLoaded', function(){
       toothModel = gltf.scene;
       toothModel.scale.set(5, 5, 5);
       toothModel.rotation.y = Math.PI / 4;
-      toothModel.position.y = -0.2; // lower it
-      toothModel.position.x = 0.2;  // move right (increase to go farther right)
+      toothModel.position.y = -0.4; // lower it
+      toothModel.position.x = 0.6;  // move right (increase to go farther right)
       scene.add(toothModel);
     },
     undefined,
@@ -529,16 +844,94 @@ document.addEventListener('DOMContentLoaded', function(){
     if (toothModel) {
       toothModel.rotation.y += 0.003;
       toothModel.rotation.x += (ty - toothModel.rotation.x) * 0.05;
-      toothModel.position.y = -0.2 + Math.sin(clock.getElapsedTime() * 1.5) * 0.05;
+      toothModel.position.y = -0.4 + Math.sin(clock.getElapsedTime() * 1.5) * 0.05;
     }
     renderer.render(scene, camera);
   }
   animate();
+  (function() {
+      const canvas = document.getElementById('bg-canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(55, 2, 0.1, 100);
+      camera.position.z = 18;
+
+      const particles = new THREE.BufferGeometry();
+      const count = 800;
+      const positions = new Float32Array(count * 3);
+      for (let i=0; i<count; i++){
+        positions[i*3]   = (Math.random() - .5) * 60; // x
+        positions[i*3+1] = (Math.random() - .5) * 40; // y
+        positions[i*3+2] = (Math.random() - .5) * 30; // z
+      }
+      particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+      const material = new THREE.PointsMaterial({ size: 0.08, color: 0x38bdf8, transparent: true, opacity: 0.85 });
+      const points = new THREE.Points(particles, material);
+      scene.add(points);
+
+      function resize(){
+        const w = canvas.clientWidth || canvas.parentElement.clientWidth;
+        const h = canvas.clientHeight || window.innerHeight * 0.92;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h; camera.updateProjectionMatrix();
+      }
+      window.addEventListener('resize', resize); resize();
+
+      let t = 0;
+      function tick(){
+        t += 0.0025;
+        points.rotation.y = t * 0.8;
+        points.rotation.x = Math.sin(t*0.6) * 0.2;
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+      }
+      tick();
+    })();
+/* ---------- Contact form (demo only) ---------- */
+document.getElementById('contactForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var name = this.name.value.trim();
+  var phone = this.phone.value.trim();
+  var msg = this.message.value.trim();
+  if(!name || !phone || !msg){ alert('Please fill all fields'); return; }
+  alert('Thanks, ' + name + '! Your message has been noted (demo).');
+  this.reset();
+});
+document.addEventListener('DOMContentLoaded', () => {
+const wrapper = document.querySelector('.before-after-wrapper');
+const afterImg = document.querySelector('.after-img');
+const handle = document.querySelector('.slider-handle');
+
+let isDragging = false;
+
+wrapper.addEventListener('mousedown', () => isDragging = true);
+wrapper.addEventListener('mouseup', () => isDragging = false);
+wrapper.addEventListener('mouseleave', () => isDragging = false);
+wrapper.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+
+  const rect = wrapper.getBoundingClientRect();
+  let offsetX = e.clientX - rect.left;
+  offsetX = Math.max(0, Math.min(offsetX, rect.width)); // clamp
+
+  const percent = (offsetX / rect.width) * 100;
+
+  anime({
+    targets: afterImg,
+    clipPath: `inset(0 ${100 - percent}% 0 0)`,
+    duration: 300,
+    easing: 'easeOutQuad'
+  });
+
+  anime({
+    targets: handle,
+    left: `${percent}%`,
+    duration: 300,
+    easing: 'easeOutQuad'
+  });
+});
+});
 </script>
 </body>
 </html>
-
-
-
-
-
