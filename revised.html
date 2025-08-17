@@ -58,8 +58,18 @@
     backdrop-filter:blur(8px);
   }
   .navbar-brand{font-weight:800;letter-spacing:.2px}
-  .nav-link{color:var(--text)!important;opacity:.9}
+  .nav-link{color:var(--text)!important;opacity:0.9;text-decoration: none;position: relative;padding-bottom: 4px;}
   .nav-link:hover{opacity:1}
+  .nav-underline {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.3s ease;
+}
   .nav-cta{border-radius:12px;padding:8px 14px;font-weight:700}
   .nav-ghost{background:transparent;border:1px solid rgba(0,0,0,.08)}
   [data-theme="dark"] .nav-ghost{border-color:rgba(255,255,255,.12)}
@@ -194,12 +204,16 @@
 .label-before,
 .label-after {
   position: absolute;
-  bottom: 0px;
+  bottom: 10px;
   width: 50%;
   text-align: center;
   font-weight: bold;
   color: #333;
   font-size: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  padding: 4px 0;
+  z-index: 2;
 }
 
 .label-before {
@@ -214,7 +228,35 @@
   transform: scale(1.05);
   transition: transform 0.3s ease;
 }
+.before-after-wrapper:hover .before-img,
+.before-after-wrapper:hover .after-img {
+  filter: brightness(0.6);
+}
 
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.slider-left {
+  left: 10px;
+}
+
+.slider-right {
+  right: 10px;
+}
+.before-after-wrapper:hover .slider-btn {
+  opacity: 1;
+}
 </style>
 </head>
 
@@ -230,11 +272,11 @@
     </button>
     <div class="collapse navbar-collapse" id="navCollapse">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
-        <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-        <li class="nav-item"><a class="nav-link" href="#comfort">Comfort</a></li>
-        <li class="nav-item"><a class="nav-link" href="#values">Values</a></li>
-        <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
-        <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+        <li class="nav-item"><a class="nav-link" href="#services">Services<span class="nav-underline"></span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#comfort">Comfort<span class="nav-underline"></span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#values">Values<span class="nav-underline"></span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials<span class="nav-underline"></span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact">Contact<span class="nav-underline"></span></a></li>
       </ul>
       <div class="d-flex align-items-center gap-2">
         <button id="themeToggle" class="btn btn-outline-secondary nav-ghost" aria-label="Toggle theme">
@@ -420,21 +462,23 @@
           <div class="before-after-wrapper position-relative">
             <div class="label-before">Before</div>
             <div class="label-after">After</div>
-            <img src="https://zahidservers.github.io/DentistPhobia/assets/img/before.jpg" class="img-fluid before-img" />
-            <img src="https://zahidservers.github.io/DentistPhobia/assets/img/after.jpg" class="img-fluid after-img" />
+            <button class="slider-btn slider-left"><i class="bi bi-chevron-left"></i></button>
+            <button class="slider-btn slider-right"><i class="bi bi-chevron-right"></i></button>
+            <img src="https://zahidservers.github.io/DentistPhobia/assets/img/after.jpg" class="img-fluid before-img" />
+            <img src="https://zahidservers.github.io/DentistPhobia/assets/img/before.jpg" class="img-fluid after-img" />
             <div class="slider-handle"></div>
           </div>
         </div>        
       </div>
       <div class="col-lg-6">
-        <h2 class="section-title">Gentle & Comfort-First <span class="decor-underline"></span></h2>
-        <p class="muted">Our focus is on providing gentle and pain-free treatments to create a relaxed and comfortable experience for all patients.</p>
+        <h2 class="section-title">✨ Radiant Smiles, Comfortably Delivered <span class="decor-underline"></span></h2>
+        <p class="muted">We specialize in gentle, sensitivity-free whitening treatments designed to brighten your smile without discomfort.</p>
         <ul class="list-unstyled mt-3">
-          <li class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-success"></i> Massaging, heated chairs & your choice of entertainment</li>
-          <li class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-success"></i> Calming environment with refreshments and music</li>
-          <li class="d-flex gap-2 align-items-start"><i class="bi bi-check-circle-fill text-success"></i> Transparent, personalized treatment plans</li>
+          <li class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-success"></i> Clear plans. Visible results from day one</li>
+          <li class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-success"></i> LED whitening with enamel-safe gels</li>
+          <li class="d-flex gap-2 align-items-start"><i class="bi bi-check-circle-fill text-success"></i> Soothing care before and after treatment</li>
         </ul>
-        <div class="mt-3"><a href="#contact" class="btn btn-outline-primary rounded-3">Ask about sedation options</a></div>
+        <div class="mt-3"><a href="#contact" class="btn btn-outline-primary rounded-3">Ask about Tooth Whitening options</a></div>
       </div>
     </div>
   </section>
@@ -688,7 +732,70 @@ document.addEventListener('DOMContentLoaded', function(){
   anime({ targets: '[data-anim="cta"]', scale: [1, 1.02, 1], duration: 2000, easing: 'easeInOutSine', loop: true });
 
 });
+// Bi Slider animation
+document.addEventListener('DOMContentLoaded', () => {
+const wrapper = document.querySelector('.before-after-wrapper');
+const afterImg = document.querySelector('.after-img');
+const handle = document.querySelector('.slider-handle');
+let isDragging = false;
+wrapper.addEventListener('mousedown', () => isDragging = true);
+wrapper.addEventListener('mouseup', () => isDragging = false);
+wrapper.addEventListener('mouseleave', () => isDragging = false);
+wrapper.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  const rect = wrapper.getBoundingClientRect();
+  let offsetX = e.clientX - rect.left;
+  offsetX = Math.max(0, Math.min(offsetX, rect.width)); // clamp
+  const percent = (offsetX / rect.width) * 100;
+  anime({
+    targets: afterImg,
+    clipPath: `inset(0 ${100 - percent}% 0 0)`,
+    duration: 300,
+    easing: 'easeOutQuad'
+  });
 
+  anime({
+    targets: handle,
+    left: `${percent}%`,
+    duration: 300,
+    easing: 'easeOutQuad'
+  });
+});
+const leftBtn = document.querySelector('.slider-left');
+const rightBtn = document.querySelector('.slider-right');
+let currentPercent = 50; // initial split
+function updateSlider(percent) {
+  currentPercent = Math.max(0, Math.min(percent, 100));
+  afterImg.style.clipPath = `inset(0 ${100 - currentPercent}% 0 0)`;
+  handle.style.left = `${currentPercent}%`;
+}
+leftBtn.addEventListener('click', () => updateSlider(currentPercent - 10));
+rightBtn.addEventListener('click', () => updateSlider(currentPercent + 10));
+});
+
+// Anime.js for navbar
+document.addEventListener('DOMContentLoaded', () => {
+  // Nav Link
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('mouseenter', () => {
+      anime({
+        targets: link.querySelector('.nav-underline'), // pseudo-element can't be targeted directly
+        width: '100%',
+        duration: 500,
+        easing: 'easeOutQuad'
+      });
+    });
+
+    link.addEventListener('mouseleave', () => {
+      anime({
+        targets: link.querySelector('.nav-underline'),
+        width: '0%',
+        duration: 400,
+        easing: 'easeInQuad'
+      });
+    });
+  });
+});
 /* ---------- Three.js decorative background (abstract, fast) ---------- */
 (function(){
   try{
@@ -898,40 +1005,7 @@ document.getElementById('contactForm').addEventListener('submit', function(e){
   alert('Thanks, ' + name + '! Your message has been noted (demo).');
   this.reset();
 });
-document.addEventListener('DOMContentLoaded', () => {
-const wrapper = document.querySelector('.before-after-wrapper');
-const afterImg = document.querySelector('.after-img');
-const handle = document.querySelector('.slider-handle');
 
-let isDragging = false;
-
-wrapper.addEventListener('mousedown', () => isDragging = true);
-wrapper.addEventListener('mouseup', () => isDragging = false);
-wrapper.addEventListener('mouseleave', () => isDragging = false);
-wrapper.addEventListener('mousemove', (e) => {
-  if (!isDragging) return;
-
-  const rect = wrapper.getBoundingClientRect();
-  let offsetX = e.clientX - rect.left;
-  offsetX = Math.max(0, Math.min(offsetX, rect.width)); // clamp
-
-  const percent = (offsetX / rect.width) * 100;
-
-  anime({
-    targets: afterImg,
-    clipPath: `inset(0 ${100 - percent}% 0 0)`,
-    duration: 300,
-    easing: 'easeOutQuad'
-  });
-
-  anime({
-    targets: handle,
-    left: `${percent}%`,
-    duration: 300,
-    easing: 'easeOutQuad'
-  });
-});
-});
 </script>
 </body>
 </html>
