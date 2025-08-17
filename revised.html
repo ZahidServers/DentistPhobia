@@ -284,7 +284,7 @@
 <body data-theme="light">
 <!-- NAV -->
 <!-- Top Info Bar -->
-<div class="top-info-bar unscrolledhide py-1 fw-bold">
+<div class="top-info-bar py-1 fw-bold">
   <div class="container d-flex justify-content-between align-items-center flex-wrap small">
     <div class="d-flex gap-3 align-items-center">
       <span><i class="bi bi-clock"></i> Mon–Tues: 6:00am–10:00pm, Sunday Closed</span>
@@ -1048,10 +1048,12 @@ window.addEventListener('scroll', () => {
     nav.classList.remove('unscrolled');
     nav.classList.add('scrolled');
     topinfobar.classList.add('scrolledhide');
+    topinfobar.classList.remove('unscrolledhide');
   } else {
     nav.classList.remove('scrolled');
     nav.classList.add('unscrolled');
     topinfobar.classList.add('unscrolledhide');
+    topinfobar.classList.remove('scrolledhide');
   }
 });
 // remove hash from url
@@ -1070,3 +1072,4 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 </script>
 </body>
 </html>
+
