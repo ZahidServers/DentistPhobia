@@ -1058,20 +1058,15 @@ window.addEventListener('scroll', () => {
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function(e) {
     e.preventDefault();
-
     const targetId = this.getAttribute('href').slice(1);
     const targetEl = document.getElementById(targetId);
-
     if (targetEl) {
       targetEl.scrollIntoView({ behavior: 'smooth' });
-
       // Remove hash from URL without reloading
       history.replaceState(null, '', window.location.pathname + window.location.search);
     }
   });
 });
-
 </script>
 </body>
 </html>
-
