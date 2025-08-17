@@ -57,6 +57,18 @@
     background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 88%,transparent),transparent);
     backdrop-filter:blur(8px);
   }
+  .scrolled{
+    top: 0px;
+  }
+  .unscrolled{
+    top: 25px;
+  }
+  .scrolledhide{
+    display: none;
+  }
+  .unscrolledhide{
+    top: block;
+  }
   .navbar-brand{font-weight:800;letter-spacing:.2px}
   .nav-link{color:var(--text)!important;opacity:0.9;text-decoration: none;position: relative;padding-bottom: 4px;}
   .nav-link:hover{opacity:1}
@@ -257,12 +269,35 @@
 .before-after-wrapper:hover .slider-btn {
   opacity: 1;
 }
+.top-info-bar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  background-color: var(--bg,); /* Customize as needed */
+  color: var(--text);
+  font-size: 0.875rem;
+  z-index: 1030 !important; /* Below navbar (Bootstrap navbar is 1040) */
+}
 </style>
 </head>
 
 <body data-theme="light">
 <!-- NAV -->
-<nav class="navbar navbar-expand-lg fixed-top nav-surface">
+<!-- Top Info Bar -->
+<div class="top-info-bar unscrolledhide py-1 fw-bold">
+  <div class="container d-flex justify-content-between align-items-center flex-wrap small">
+    <div class="d-flex gap-3 align-items-center">
+      <span><i class="bi bi-clock"></i> Mon–Tues: 6:00am–10:00pm, Sunday Closed</span>
+      <span><i class="bi bi-geo-alt"></i> Mumbai, India</span>
+    </div>
+    <div class="d-flex gap-3 align-items-center">
+      <span><i class="bi bi-envelope"></i> ceo@webaon.com</span>
+      <span><i class="bi bi-telephone"></i> +91 9987020144 / +91 9869642015</span>
+    </div>
+  </div>
+</div>
+
+<nav class="navbar navbar-expand-lg fixed-top nav-surface unscrolled">
   <div class="container container-lg">
     <a class="navbar-brand d-flex align-items-center gap-2" href="#hero">
       <i class="bi bi-brightness-alt-high-fill text-primary"></i><span>Dentaon</span>
@@ -1004,6 +1039,36 @@ document.getElementById('contactForm').addEventListener('submit', function(e){
   if(!name || !phone || !msg){ alert('Please fill all fields'); return; }
   alert('Thanks, ' + name + '! Your message has been noted (demo).');
   this.reset();
+});
+// Navigation
+const nav = document.querySelector('.nav-surface');
+const topinfobar = document.querySelector('top-info-bar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 25) {
+    nav.classList.remove('unscrolled');
+    nav.classList.add('scrolled');
+    topinfobar.classList.add('scrolledhide');
+  } else {
+    nav.classList.remove('scrolled');
+    nav.classList.add('unscrolled');
+    topinfobar.classList.add('unscrolledhide');
+  }
+});
+// remove hash from url
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const targetId = this.getAttribute('href').slice(1);
+    const targetEl = document.getElementById(targetId);
+
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth' });
+
+      // Remove hash from URL without reloading
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  });
 });
 
 </script>
