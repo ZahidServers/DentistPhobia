@@ -300,7 +300,7 @@
 <nav class="navbar navbar-expand-lg fixed-top nav-surface unscrolled">
   <div class="container container-lg">
     <a class="navbar-brand d-flex align-items-center gap-2" href="#hero">
-      <i class="bi bi-brightness-alt-high-fill text-primary"></i><span>Dentaon</span>
+      <i class="bi bi-brightness-alt-high-fill text-primary"></i><span class='biz-name'>Dentaon</span>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -1059,9 +1059,20 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       history.replaceState(null, '', window.location.pathname + window.location.search);
     }
   });
+  //load
+  const urlParams = new URLSearchParams(window.location.search);
+  const businessName = urlParams.get('name');
+  // If name exists, put it in the page
+  if (businessName) {
+    // Replace any element with class "biz-name"
+    document.querySelectorAll('.biz-name').forEach(el => {
+      el.textContent = businessName;
+    });
+  }
 });
 </script>
 </body>
 </html>
+
 
 
