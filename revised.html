@@ -738,6 +738,9 @@ document.addEventListener('DOMContentLoaded', function(){
     entries.forEach(entry => {
       const el = entry.target;
       if (entry.isIntersecting) {
+        el.dataset.visible = 'true';
+el.style.opacity = 1;
+el.style.transform = 'translateY(0)';
 
         // Underline animation
         if (el.classList.contains('decor-underline') && !el.dataset.animated) {
@@ -756,16 +759,31 @@ document.addEventListener('DOMContentLoaded', function(){
       }else {
         // Fade out on scroll up
         if (scrollDirection === 'up' && el.dataset.visible === 'true') {
-          el.dataset.visible = 'false';
-          anime({ targets: el, opacity: [1, 0], translateY: [0, -20], duration: 600, easing: 'easeOutQuad' });
-          el.dataset.animated = '';
-        }
-      }
+    el.dataset.visible = 'false';
+    el.dataset.animated = '';
+
+    // Reset styles so they can animate again
+    if (el.classList.contains('decor-underline')) {
+      el.style.width = '0px';
+    }
+    if (el.hasAttribute('data-count')) {
+      el.textContent = '0';
+    }
+
+    anime({
+      targets: el,
+      opacity: [1, 0],
+      translateY: [0, -20],
+      duration: 400,
+      easing: 'easeOutQuad'
+    });
+  }
+}
+
     });
   }, { threshold: 0.6 }); // Trigger when 60% visible
   document.querySelectorAll('.decor-underline, [data-count]').forEach(el => observer.observe(el));
   anime({ targets: '[data-anim="cta"]', scale: [1, 1.02, 1], duration: 2000, easing: 'easeInOutSine', loop: true });
-
 });
 // Bi Slider animation
 document.addEventListener('DOMContentLoaded', () => {
@@ -1073,6 +1091,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 </script>
 </body>
 </html>
+
 
 
 
